@@ -1,17 +1,17 @@
-BLOC #3 : Les fonctions à connaitre pour manipuler les dates SAS
+# BLOC #3 : Les fonctions à connaitre pour manipuler les dates SAS
 
-Introduction :
+## Introduction :
 Le jeu de donnée que je vais utiliser fait état de la situation quotidiennes liée à la pandémie de covid depuis le 10 avril 2020. Dans un premier temps nous allons manipuler les dates de notre jeu de données, grâce notamment aux fonctions offertes par le logiciel SAS.
 
-1-	Création d’un champ de date SAS à partir d’une variable caractères.
+## 1-	Création d’un champ de date SAS à partir d’une variable caractères.
 Comme nous l’avons vu durant le cours, lorsque l’on importe des données, les champs contenant des dates sont rarement compris comme tel par SAS. C’est pourquoi nous devons indiquer dans une première étape data, les traitements que supposent notre champ Date ici.
 Nous appliquerons dans un premier temps deux approches vu pendant le cours : 
 
-A.	Méthode par extraction
+### A.	Méthode par extraction
 Dans le code ci-dessous, nous utilisons plusieurs fonctions pour extraire l’année, le mois et le jour de notre jeu de donné. La fonction substr nous permet de sélectionner certains caractères de notre variable Date, et la fonction input nous permet de convertir nos caractères en nombre. Ainsi, nous obtenons trois champs de type numérique. 
 La fonction mdy indique à SAS comment créer une date sas à partir des variables crées précédemment.
 Notons que le format est essentiel afin que l’on puisse lire notre date convenablement. Dans ce travail je garderai le format Date9. Comme format de référence. 
-
+```SAS
 data date;
 set covid_table;
 
@@ -27,11 +27,11 @@ date_sas=mdy(input(substr(Date,1,2),8.),input(substr(Date,4,2),8.),input(substr(
 format date_sas date9.;
 
 run;
-
-B.	Méthode par informat
+```
+### B.	Méthode par informat
 
 L’informat de la variable Date peut également être utilisé dans le cas où la syntaxe de notre date correspond à un des formats de dates de SAS. Ici, nous remarquons que notre chaine de caractère qui forme la date s’apparente au format MMDDYY10.. À nouveau, grâce à la fonction input, SAS est en mesure d’interpréter convenablement notre chaine de caractère original. Encore une fois nous devons spécifier un format afin de pouvoir lire les dates convenablement.
-
+```SAS
 data date1;
 set covid_table;
 
@@ -39,42 +39,42 @@ date_sas=input(date,MMDDYY10.);
 
 format date_sas date9.;
 run;
-
-2-	Création d’un champ à partir de date SAS, et d’une date SAS à partir d’un champ.
+```
+## 2-	Création d’un champ à partir de date SAS, et d’une date SAS à partir d’un champ.
 
 Bien que nous venions d’en utiliser une (mdy), il existe de nombreuses fonctions utiles à l’exploitation des dates dans SAS. Cette section fait état des fonctions qui nous permettront de créer des dates avec différentes syntaxe à partir d’autres variables.
 Créer un champ avec la date actuelle peut se faire de plusieurs manières. En cours nous avons ainsi utilisé la fonction today() mais deux autre options nous permettent d’arriver au même résultat.
-
+```SAS
 *today;
 ajd1= date();
 ajd2 = today(); *idem! simple prÈcision par rapport au cours;
 ajd3 = "&sysdate"d;
-
+```
 Nous pouvons constater que les 3 fonctions retournent une date en tout point identique. Les deux premières ne peuvent pas contenir d’argument. La troisième est une macro, qui nous permets de récupérer la date du système.
 La fonction quarter peut-être utilise lorsque l’on souhaite connaitre le trimestre auquel appartient une certaine variable (déjà au format date SAS). Par conséquent dans le code suivant, j’utilise cette fonction sur la variable date_sas crée à l’étape précédente. 
-
+```SAS
 *quarter on peut obtenir le trimestre de la dates de notre fichier de donnÈes;
 quarter=qtr(date_sas);
-
+```
 En exécutant cette fonction, la variable quarter que nous créons retourne le trimestre correspondant à la variable date_sas. Notons ici que l’output de cette fonction n’est plus un format date, mais un format numérique (1,2,3 ou 4 en fonction de la valeur de date_sas).
 Lorsque l’on a affaire à des trimestres dans une base de données, nous pouvons générer une date sas grâce à la fonction yyq. Cette fonction prend en argument l’année et le trimestre de de la date que l’on souhaite générer. Ainsi dans le code qui suit nous sommes en mesures de retrouver la première date du trimestre correspondant de notre variable sas_date.
-
+```SAS
 *on peut utilser la derniËre variable quarter pour gÈnÈrer la date du dÈbut du trimestre ;
 datequarter = yyq(annee, quarter);
-
+```
 Les dates peuvent également s’écrire avec une syntaxe / normes différentes dans sas. Par exemple il est possible d’utiliser les jours julien pour représenter une date dans SAS. Deux types de jours juliens sont utilisable, juldate7 ou juldate. Ces deux fonctions retournent respectivement le jour julien en format numérique de longueur 7 ou 5. Un jour julien s’écrit avec l’année suivie du nombre écoulé de jours dans cette même année. On constate par conséquent que le 27 mars 2021 prendra la valeur 21086 2021086 (le 27 mars étant le 86e jour de l’année) après avoir exécuter le code suivant :
-
+```SAS
 *juldate est un type de date un peu particulier : SAS nous donne la possibilitÈ de gener les jours julien de plusierus maniËre;
 juld = juldate(date_sas);
 juld7 = juldate7(date_sas);
-
+```
 Notons ici que ces fonctions retournent une valeur numérique. On perd par conséquent le format date SAS.
 Cependant, la fonction datejul nous permets de retrouver le format de date SAS : En l’appliquant sur deux variables distinctes, et prenant en argument les variables aux longueurs différentes précédemment créés (juld et juld7), on observe que les résultats sont identiques. La fonction est en mesure de s’adapter aux deux types d’écritures des jours julien dans SAS. Finalement ces deux nouvelles variables seront équivalentes à au champs date_sas.
-
+```SAS
 *on peut retomber sur nos pieds en utilisant ces derniËres variables pour gÈnÈrer une nouvelle date equivalent a datesas, on remarque que la fonction s'adapte selon la syntaxe de jour julien;
 datejul1 = datejul(juld);
 datejul2 = datejul(juld7);
-
+```
 Enfin, comme la fonction quarter, la fonction weekday nous permet de récupérer le jour de la semaine. Attention, ici 1 sera équivalent à dimanche et non lundi. 
 *weekday;
 weekd=weekday(date_sas);
@@ -87,41 +87,41 @@ week3=week(date_sas,'v');
 week4=week(date_sas,'w');
 ```
 
-3-	Function d’intervalles de dates
+## 3)	Function d’intervalles de dates
 
 Quand on parle de dates, il peut être utile de connaître un intervalle de temps particulier. Plusieurs fonctions pourront nous aider à cette fin.
 
 La première fonction que nous allons voir nous permet de calculer le nombre d’année qui s’est écoulé entre deux dates. Le code ci-dessous illustre plusieurs syntaxes de la fonction possible. 
 Par défaut la fonction yrdif considère qu’une année compte 365 jours et comprends des mois de 30 et 31 jours. Ici anneedif sera équivalent à anneedif4, puisque « act » considère la véritable (actuelle) longueur des mois et « 365 » considère une année de 365 jours. Il est par ailleurs possible de considérer qu’une année ne contient que des mois de 30 jours et 360 jours dans l’année (voir syntaxe de la fonction yrdif dans la variable anneedif2). À l’inverse, anneedif1 illustre une représentation exacte des dates. Dans notre sortie, on observe par conséquent de légères différences entre nos 5 variables (sauf entre anneedif et anneedif4)
-
+```SAS
 anneedif=yrdif(date_sas, ajd1); *cette variable calcul le nombre d'annÈe entre la date du covid et ajd, pas trËs utile mais peut lÍtre pour calculer la relation entre un client et l'entreprise;
 anneedif1=yrdif(date_sas, ajd1, "act/act");*act/act" utilise le nombre rÈel de jours et d'annÈes entre deux dates;
 anneedif2=yrdif(date_sas, ajd1, "30/360");*30/360' spÈcifie un mois de 30 jours et une annÈe de 360 jours;
 anneedif3=yrdif(date_sas, ajd1, "act/360");*act/360" utilise le nombre rÈel de jours entre deux dates pour calculer le nombre d'annÈes (calculÈ par le nombre de jours divisÈ par 360);
 anneedif4=yrdif(date_sas, ajd1, "act/365");*act/365' utilise le nombre rÈel de jours entre les dates pour calculer le nombre d'annÈes (calculÈ par le nombre de jours divisÈ par 365);
-
+```
 Dans une même idée, la fonction datdif est tout aussi utile puisqu’elle nous permet de calculer la différence en jour entre deux dates. Notons que la différence ne prend pas en considération l’année : par conséquent le 1 avril 2020 et le 2 avril 2021 auront une différence d’un jour. L’argument optionnel pour yrdif est ici obligatoire : comme constaté précédemment l’argument « act/act » nous permet d’utiliser le nombre réel de jours et d'années entre deux dates alors que « 30/360 » indique un mois de 30 jours et une année de 360 jours.
-
+```SAS
 jourdif1=datdif(date_sas, ajd1, "act/act"); *IMPORTANT ici on est obligÈ de prÈciser la mÈthode utilisÈ par la fonction, contrairement ‡ la fonction yrdif + on calcul le nombre de jour sans prendre en compte les annÈes !;
 jourdif2=datdif(date_sas, ajd1, "30/360"); *SAS ne prend en compte que deux mÈthode pour la fonction datdif contre quatre pour yrdif;
 jourdif3=datdif(date_sas, ajd1, "act/360");
 jourdif4=datdif(date_sas, ajd1, "30/360");
-
+```
 Sommes toutes, ces fonctions ne sont pas très flexibles. La fonction intck est d’autant plus intéressante qu’elle nous permet de spécifier l’intervalle que l’on souhaite calculer. On doit spécifier le type d’intervalle en premier argument avant de préciser la date de départ et la date de fin de l’intervalle de temps. Ici on fait la comparaison avec les résulats obtenus précédemment. On observe que, bien que flexible, cette fonction nous offre moins de précisions dans la mesure où nous ne sommes pas en mesure de contrôler la méthode de calcul, et qu’elle incrémente automatiquement les résultats pour l’année. Ainsi, dans notre contexte, la variable anneedif5 prendra la valeur 0 sur une partie du jeu de donnée (puisque moins de 1 ans c’est écoulé). Jourdif3 semble rapporter exactement les mêmes résultats. Notons ici que plusieurs manières d’incrémenter notre date SAS sont utilisable : 'weekday', 'week', 'month', 'qtr', and 'year' par exemple. 
-
+```SAS
 anneedif5=intck("year", date_sas, ajd1);*on fixe un intervalle de 1 an a calculer, on constate qu'il n'y a pas d'arrondit;
 jourdif3=intck("day", date_sas, ajd1);*'day', 'weekday', 'week', 'month', 'qtr', and 'year' sont des exemples d'intervalles valides;
-
+```
 Pourquoi est-ce le cas ? Cela est dû au fait que la fonction intck( ) compte les intervalles à partir de débuts d'intervalles fixes, et non en multiples d'une unité d'intervalle à partir de la valeur de la date de début. Les intervalles partiels ne sont pas comptés. Par exemple, les intervalles de "semaine" sont comptés par dimanches plutôt que par multiples de sept jours de la valeur de la date de début. Les intervalles "mois" sont comptés par le premier jour de chaque mois, et les intervalles "année" sont comptés à partir du 1er janvier, et non en multiples de 365 jours à partir de la date de début.
 
 Finalement, la fonction intnx nous permets de projeter une nouvelle date avec un certain délai dans le temps. Ici encore, plusieurs types d’incrément sont possible. La particularité de cette fonction c’est qu’elle nous renvoie automatiquement la première date des deux prochains mois, dans le cas de notre syntaxe ci-dessous : Nous observons, dans la variable moisdif que nous obtenons le premier jour du deuxième mois suivant la date de l’observation contenue dans la variable date_sas. Les arguments optionnels de la fonction nous permettent de changer cette valeur, en précisant à sas de nous retourner la valeur au début (idem que par défaut) avec « beginning » : la valeur au milieu du deuxième mois avec « middle », la valeur à la fin du deuxième mois avec « middle », ou bien la même valeur de date dans deux mois.
-
+```SAS
 moisdif_paire1=intnx("month",date_sas, 2); * on observe que sas nous retourne automatiquement la premiËre date du deuxiËme mois aprËs le mois de sas_date;
 moisdif_paire2=intnx("month",date_sas, 2, "beginning"); * idem !;
 moisdif_paire3=intnx("month",date_sas, 2, "middle");
 moisdif_paire4=intnx("month",date_sas, 2, "end");
 moisdif_paire5=intnx("month",date_sas, 2, "sameday");
-
+```
 
 
 # Bloc#4: Le langage macro – pour aller plus loin
