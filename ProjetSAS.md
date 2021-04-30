@@ -3,7 +3,7 @@
 ## Introduction :
 Le jeu de donnée que je vais utiliser fait état de la situation quotidiennes liée à la pandémie de covid depuis le 10 avril 2020. Dans un premier temps nous allons manipuler les dates de notre jeu de données, grâce notamment aux fonctions offertes par le logiciel SAS.
 
-## 1-	Création d’un champ de date SAS à partir d’une variable caractères.
+## 1-	Création d’un champ de date SAS à partir d’une variable caractère.
 Comme nous l’avons vu durant le cours, lorsque l’on importe des données, les champs contenant des dates sont rarement compris comme tel par SAS. C’est pourquoi nous devons indiquer dans une première étape data, les traitements que supposent notre champ Date ici.
 Nous appliquerons dans un premier temps deux approches vu pendant le cours : 
 
